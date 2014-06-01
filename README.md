@@ -8,7 +8,7 @@ _Disclaimer_: I never used selenium so I may misundertand something. I still hop
 
 ===========================
 
-When I read the post my first though was that this functionality should be built in into `WebDriver`. And if it is not there should be reasons.
+When I read the post my first though was that this functionality should be built in into `WebDriver`.
 
 Quick search shows that there really is very similar thing to tackle such situation - `WebDriverWait`. It does the same thing and it addresses the first issue of the solution - the necessity to create `RetryStrategy`. I would say that the real problem is not in creation of `RetryStrategy` but in lot of boilerplate code. `WebDriverWait` is stateless so one instance can be reused and it requires much less boilerpate (especially in java 8).
 
@@ -73,7 +73,24 @@ Or in java 8 as
  }
 ```
 
-While this may be a good improvement I think this is not enough. For big test codebase changing all the places where elements are used requires lot of effort and is painful. I can see several options how to deal with it
+While this may be a good improvement I think this is not enough. For big test codebase changing all the places where elements are used requires lot of effort and is painful.
+
+Let's consider the test:
+
+```
+     element = manager.getDriver().findElement(By.id("some id"));
+     result = element.getAttribute("some_attribute");
+     assertThat(result, equalTo("some-value"))
+     
+     element.click();
+     
+     result = element.getAttribute("some_other_attribute");
+     assertThat(result, equalTo("some-other-value"))
+     
+```
+
+In ideal world selenium should automatically handle `StaleElementReferenceException` when `WebElement` is used, search for it again and try to reexecute failed operation. We can easily do that without touching the tests. 
+
 
 ### ReconnectableWebElement
 
@@ -107,11 +124,11 @@ class ReconnectableWebElement implements WebElement {
     );
  }
  
- // all other methods
+ // all other methods of WebElement are implemented similarly to getAttribute
 }
 ```
 
-This will require to define all 15 methods in `WebElement`. An alternative would be to create jdk proxy.
+This will require to define all 15 methods in `WebElement`. An alternative would be to create jdk proxy (I'm not sure however what will be easier).
 
 Having `ReconnectableWebElement` we need a way to get them instead of what usually is returned by `WebDriver`. For this we need to wrap `WebDriver` itself.
 
@@ -135,4 +152,4 @@ class ReconnectableWebDriver implements WebDriver {
 Usually webDriver is obtained from one place (manager in the post) so all the tests wouldn't be changed at all.
 
 
-
+This naive implementation doesn't really wraps the element and doesn't cache it. In real world I think it should do this because I have suspicion that `findElement` may be a slow operation.
