@@ -1,7 +1,7 @@
 
 
 This is the answer to [post](http://biercoff.com/found-my-own-solution-for-webdriver-staleelementreferenceexception-problem/) 
-about solution of `StaleElementReferenceException` in selenium test.
+about the issue with `StaleElementReferenceException` in selenium test.
 
 
 _Disclaimer_: I never used selenium so I may misundertand something. I still hope my thoughs make some sense.
@@ -82,22 +82,57 @@ A decorator for `WebElement` can be created which
 1. wraps real `WebElement` and stores its identity
 2. has reference to `WebDriver` and can requery element in case of `StaleElementReferenceException`   
 
-The implementation will look like this:
+The simple and straighforward implementation will look like this:
 
 ```
 class ReconnectableWebElement implements WebElement {
 
- private WebElement wrappedElement;
  private WebDriver driver;
  private By elementIdentity;
  
  public ReconnectableWebElement(WebDriver driver, By elementIdentity) {
      this.driver = driver;
      this.elementIdentity = elementIdentity;
+     this.wait = new WebDriverWait(this.getDriver(), TIMEOUT, SLEEP_BETWEEN_RETRIES)
+            .ignoring(StaleElementReferenceException.class);
  }
+ 
+ public String getAttribute(String attribute) {
+     return wait.until(
+        new Function<WebDriver, WebElement>() {
+          public WebElement apply(WebDriver driver) {
+            return driver.findElement(elementIdentity).getAttribute(attribute);
+          }
+        }
+    );
+ }
+ 
+ // all other methods
+}
+```
+
+This will require to define all 15 methods in `WebElement`. An alternative would be to create jdk proxy.
+
+Having `ReconnectableWebElement` we need a way to get them instead of what usually is returned by `WebDriver`. For this we need to wrap `WebDriver` itself.
+
+```
+class ReconnectableWebDriver implements WebDriver {
+ private WebDriver webDriver;
+ 
+ public ReconnectableWebDriver(WebDriver webDriver) {
+    this.webDriver = webDriver;
+ }
+ 
+ public WebElement findElement(By identity) {
+    return new ReconnectableWebElement(webDriver, identity);
+ }
+ 
+ // delegate all other methods to webDriver
 }
 
+```
 
+Usually webDriver is obtained from one place (manager in the post) so all the tests wouldn't be changed at all.
 
 
 
