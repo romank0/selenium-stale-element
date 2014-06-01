@@ -53,7 +53,7 @@ can be rewritten with a use of `WebDriverWait` as
     return manager.wait().until(
         new Function<WebDriver, WebElement>() {
           public WebElement apply(WebDriver driver) {
-            return driver.findElement(By.id(id).getAttribute(attribute);
+            return driver.findElement(By.id(id)).getAttribute(attribute);
           }
         }
     );
@@ -67,15 +67,15 @@ Or in java 8 as
  public String getValueFromId(final String id, final String attribute) throws Exception {
         
     return manager.wait().until(
-      (Driver driver) -> driver.findElement(By.id(id).getAttribute(attribute);
+      (Driver driver) -> driver.findElement(By.id(id)).getAttribute(attribute);
     );
 
  }
 ```
 
-While this may be a good improvement I think this is not enough. For big codebase of test changing all the places where elements are used requires lot of effort and is painful. I can see several options how to deal with it
+While this may be a good improvement I think this is not enough. For big test codebase changing all the places where elements are used requires lot of effort and is painful. I can see several options how to deal with it
 
-### ReconnectableElement
+### ReconnectableWebElement
 
 A decorator for `WebElement` can be created which 
 1. wraps real `WebElement` and stores its identity
@@ -88,7 +88,9 @@ class ReconnectableWebElement implements WebElement {
 
  private WebElement wrappedElement;
  private WebDriver driver;
-
+ private By elementIdentity;
+ 
+ 
 }
 
 
