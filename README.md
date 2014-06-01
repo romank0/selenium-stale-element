@@ -78,6 +78,7 @@ While this may be a good improvement I think this is not enough. For big test co
 ### ReconnectableWebElement
 
 A decorator for `WebElement` can be created which 
+
 1. wraps real `WebElement` and stores its identity
 2. has reference to `WebDriver` and can requery element in case of `StaleElementReferenceException`   
 
@@ -90,9 +91,11 @@ class ReconnectableWebElement implements WebElement {
  private WebDriver driver;
  private By elementIdentity;
  
- 
+ public ReconnectableWebElement(WebDriver driver, By elementIdentity) {
+     this.driver = driver;
+     this.elementIdentity = elementIdentity;
+ }
 }
-
 
 
 
