@@ -73,6 +73,26 @@ Or in java 8 as
  }
 ```
 
+While this may be a good improvement I think this is not enough. For big codebase of test changing all the places where elements are used requires lot of effort and is painful. I can see several options how to deal with it
+
+### ReconnectableElement
+
+A decorator for `WebElement` can be created which 
+1. wraps real `WebElement` and stores its identity
+2. has reference to `WebDriver` and can requery element in case of `StaleElementReferenceException`   
+
+The implementation will look like this:
+
+```
+class ReconnectableWebElement implements WebElement {
+
+ private WebElement wrappedElement;
+ private WebDriver driver;
+
+}
+
+
+
 
 
 
