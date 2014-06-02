@@ -1,0 +1,27 @@
+<html>
+<head>
+<title>Test</title>
+<script src="jquery-2.1.1.js"></script>
+</head>
+<body>
+
+<div id="elementContainer">
+	container
+	<div id="element">initial</div>
+</div>
+
+
+<script type="text/javascript">
+
+function createElement() {
+	$('#elementContainer').append('<div id="element">changed</div>');
+}
+
+$('#elementContainer').click(function() {
+	$('#element').remove();
+	setTimeout(createElement, 200);
+});
+
+</script>
+</body>
+</html>
