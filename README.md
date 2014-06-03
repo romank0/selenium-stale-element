@@ -1,4 +1,5 @@
 
+[![Build Status](https://travis-ci.org/romank0/selenium-stale-element.svg?branch=master)](https://travis-ci.org/romank0/selenium-stale-element)
 
 This is the answer to [post](http://biercoff.com/found-my-own-solution-for-webdriver-staleelementreferenceexception-problem/) 
 about the issue with `StaleElementReferenceException` in selenium test.
