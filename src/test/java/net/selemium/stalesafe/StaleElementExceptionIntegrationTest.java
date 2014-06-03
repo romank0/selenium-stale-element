@@ -32,18 +32,21 @@ public class StaleElementExceptionIntegrationTest  {
 	
 	private WebDriverWait wait;
 
+	private WebDriver wrappedDriver;
+
 	@Before
 	public  void setUp() {
-	   driver = new FirefoxDriver();
+	   wrappedDriver = new FirefoxDriver();
+	   driver = new ReconnectableWebDriver(wrappedDriver);
 
        driver.navigate().to("http://localhost:8080");
        
-       wait = new WebDriverWait(driver, 10);
+       wait = new WebDriverWait(wrappedDriver, 10);
        
        wait.until(new Function<WebDriver, WebElement>() {
 		@Override
 		public WebElement apply(WebDriver input) {
-			return driver.findElement(By.id(ELEMENT_ID));
+			return input.findElement(By.id(ELEMENT_ID));
 		}
        });
 	}
@@ -58,7 +61,8 @@ public class StaleElementExceptionIntegrationTest  {
     @Test
 	public void testChangingElement() throws InterruptedException {
         WebElement element = driver.findElement(By.id(ELEMENT_ID));
-        final WebElement container = driver.findElement(By.id(CONTAINER_ID));
+        
+        final WebElement container = wrappedDriver.findElement(By.id(CONTAINER_ID));
         container.click();
         waitForElementDoDisappear(By.id(ELEMENT_ID));
         
@@ -70,7 +74,7 @@ public class StaleElementExceptionIntegrationTest  {
 			@Override
 			public boolean apply(WebDriver input) {
 				try {
-					driver.findElement(element);
+					input.findElement(element);
 					return false;
 				} catch (NoSuchElementException e) {
 					return true;
