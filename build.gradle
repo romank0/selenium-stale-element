@@ -17,3 +17,20 @@ dependencies {
     testCompile 'org.springframework:spring-test:4.0.5.RELEASE'
     testCompile "org.springframework.boot:spring-boot-starter-web:1.0.2.RELEASE"
 }
+
+sourceSets {
+	integTest {
+		compileClasspath += main.output + test.output
+		runtimeClasspath += main.output + test.output
+	}
+}
+
+configurations {
+	integTestCompile.extendsFrom testCompile
+	integTestRuntime.extendsFrom testRuntime
+}
+
+task integTest(type: Test) {
+	testClassesDir = sourceSets.integTest.output.classesDir
+	classpath = sourceSets.integTest.runtimeClasspath
+}
